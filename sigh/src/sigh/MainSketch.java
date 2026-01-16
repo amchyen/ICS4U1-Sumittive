@@ -11,18 +11,39 @@ public class MainSketch extends PApplet {
     String ctxt = "txtU1(1)";
     private StartButton start;
     private StartButton start1;
+    private StartButton map;
+    
     private int stage = 0;
     private chara character;
-    private Person villager1;
-    private Person villager2;
+    private Person micah;
+    private Person kiyomi;
+    private Person micky;
     private dialoge textbox;
     private dialoge gno;
     private dialoge currentgno;
     private Person title;
     private int currentBackground = 10;
-    Village_bg[] backgrounds = new Village_bg[10];    
+    Village_bg[] backgrounds = new Village_bg[10];
+    int row_dia = 0;
+    int collom_dia = 0;
+    
+    String [][] UserdiaArray = new String [2][];
+    String [][] micahdiaArray = new String [3][];
+    
+    boolean user_talking = true;
+    boolean mickey_talking = false;
+    boolean suni_talking = false;
+    boolean kiyomi_talking = false;
+    boolean micah_talking = false;
     
     
+   boolean spacelock = false;
+   boolean maplock = false;
+   boolean start_userdia = true;
+   boolean map_open = false;
+   
+   int villagers_talked2 = 0;
+
     void changeStage(int newStage) {
         stage = newStage;
 
@@ -40,7 +61,15 @@ public class MainSketch extends PApplet {
     public void setup() {
         start = new StartButton(this, "images/startsign.png", 320, 210);
         start1 = new StartButton(this, "images/abtgamesign.png", 300, 320);
+        map = new StartButton(this, "images/map.png", 50, 30);
 
+        
+        UserdiaArray[0] = new String[2];
+        UserdiaArray[0][0] = "images/txtU1(1).png";
+        UserdiaArray[0][1] = "images/txtU1(2).png";
+        
+        UserdiaArray[1] = new String[3];
+        
         images = new PImage[numImages];
         for (int i = 0; i < numImages; i++) {
             images[i] = loadImage("images/frame_" + i + ".png");
@@ -59,15 +88,33 @@ public class MainSketch extends PApplet {
         
         
         character = new chara(this, "images/character.png", 300,240);
-        villager1 = new Person(this, "images/villager1.png", 450, 200);
-        villager2 = new Person(this, "images/villager2.png", 28, 96);
+        micah = new Person(this, "images/villager1.png", 450, 200);
+        kiyomi = new Person(this, "images/villager2.png", 28, 96);
+        micky = new Person(this, "images/villager3.png", 304,424);
+        
         textbox = new dialoge(this, "images/" + ctxt+".png", 111,295);
         gno = new dialoge(this, "images/3.png", 395,5);
         currentgno = new dialoge(this, "images/4.png", 480,25);
         title = new Person(this, "images/title.png", 200,25);
+        
+        if (stage == 2){
+            
+        }
     }
 
     public void draw() {
+            
+    if (keyPressed && key == 'a' && !maplock) {
+        maplock = true;
+        map_open = !map_open;
+    }
+
+    if (!keyPressed || key != 'a') {
+        maplock = false;
+    }
+
+        
+
         background(0);
         if (stage == 0){
             image(images[imgIndex], 0, 0, width, height);
@@ -88,8 +135,8 @@ public class MainSketch extends PApplet {
         if (stage==1){
            backgrounds[currentBackground-1].draw();
            character.draw();
-           
-           textbox.draw();
+           if (user_talking)
+            textbox.draw();
            gno.draw();
            currentgno.draw();
            //System.out.println(character.x +","+ character.y);
@@ -107,16 +154,42 @@ public class MainSketch extends PApplet {
                 if (keyCode == DOWN) {
                   character.y += 3;
                 }
-                if (key == ' ') {
-                    textbox.setImage("images/txtU1(2).png");
-                }
-           }
+                if (key == ' '){
+                    if (user_talking && !spacelock && start_userdia){
+                    spacelock=true;
+                    row_dia++;
+                    if (row_dia != UserdiaArray[collom_dia].length)
+                        textbox.setImage(UserdiaArray[collom_dia][row_dia]);
 
+                    if (row_dia >= UserdiaArray[collom_dia].length) {
+                        user_talking = false;
+                        row_dia = 0;
+                        start_userdia = false;
+                        collom_dia++;
+                }   
+            }
+                    if (micah_talking && !spacelock){
+                     spacelock=true;
+                    row_dia++;
+                    if (row_dia != UserdiaArray[collom_dia].length)
+                        textbox.setImage(UserdiaArray[collom_dia][row_dia]);
 
+                    if (row_dia >= UserdiaArray[collom_dia].length) {
+                        user_talking = false;
+                        row_dia = 0;
+                        start_userdia = false;
+                        collom_dia++;
+                }   
+                    }
            }
-              
+           }
+        if (!keyPressed || key != ' ') {
+            spacelock = false;
+    }
+ 
            if (currentBackground == 1) {
                updateBackground1();
+               micky.draw();
            }
            else if (currentBackground == 2) {
                updateBackground2();
@@ -126,11 +199,11 @@ public class MainSketch extends PApplet {
            }
            else if (currentBackground == 4) {
                updateBackground4();
-               villager2.draw();
+               kiyomi.draw();
            }
            else if (currentBackground == 5) {
                updateBackground5();
-               villager1.draw();
+               micah.draw();
            }
            else if (currentBackground == 6) {
                updateBackground6();
@@ -149,12 +222,22 @@ public class MainSketch extends PApplet {
            }
            
         }
+        
+                if (map_open){
+            map.draw();
+        }
+    }
     
         // Mouse click detection
     public void mousePressed() {
         if (start1.isClicked(mouseX, mouseY)) {
             stage = 1;
             changeStage(1);
+            
+        if (micah.isClicked(mouseX, mouseY)){
+            villagers_talked2 ++;
+            micah_talking = true;
+        }
         }
     }
     
@@ -163,7 +246,6 @@ public class MainSketch extends PApplet {
     if (character.x > 501 && character.x < 570 && character.y > 366) {
         currentBackground = 2;
         character.setPos(336, 369);
-        System.out.println("hii");
     }
     else if (character.x > 581) {
         character.x = 581;
@@ -186,7 +268,6 @@ public class MainSketch extends PApplet {
         }
         if (character.y > 460 && character.x > 390 && character.x < 480) {
             currentBackground = 6;
-            System.out.println("heheh");
             character.setPos(430, 82);
         }
         
