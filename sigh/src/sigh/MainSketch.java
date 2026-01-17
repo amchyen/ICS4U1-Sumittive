@@ -5,6 +5,7 @@ import processing.core.PImage;
 
 public class MainSketch extends PApplet {
     PImage[] images;  
+    Village_bg plantbg;
     int imgIndex = 0; 
     int numImages = 39;
     
@@ -18,6 +19,8 @@ public class MainSketch extends PApplet {
     private Person micah;
     private Person kiyomi;
     private Person micky;
+    private Person catherine;
+    
     private dialoge textbox;
     private dialoge gno;
     private dialoge currentgno;
@@ -29,12 +32,25 @@ public class MainSketch extends PApplet {
     
     String [][] UserdiaArray = new String [2][];
     String [][] micahdiaArray = new String [3][];
+    String[][] kiyomidiaArray = new String[1][];
+    String[][] mickydiaArray = new String[1][];
+    String[][] catherinediaArray = new String[1][];
+
+
     
     boolean user_talking = true;
-    boolean mickey_talking = false;
+    boolean micky_talking = false;
     boolean suni_talking = false;
     boolean kiyomi_talking = false;
     boolean micah_talking = false;
+    boolean cat_talking = false;
+    boolean show_seed =false;
+    boolean seedPlanted = false;
+    boolean showPlantPopup = false;
+    boolean seedChosen = false;
+    
+    items plantPOPup;
+    items exit;
     
     
    boolean spacelock = false;
@@ -42,8 +58,19 @@ public class MainSketch extends PApplet {
    boolean start_userdia = true;
    boolean map_open = false;
    
+    boolean kiyomi_choice = false;  
+    int kiyomi_row = 0;
+   
    int villagers_talked2 = 0;
-
+   
+   StartButton chillseed;
+   StartButton peachseed;
+   StartButton radishseed;
+   StartButton grapeseed;
+   
+   //change class later
+   seeds seed_select;
+   
     void changeStage(int newStage) {
         stage = newStage;
 
@@ -59,16 +86,39 @@ public class MainSketch extends PApplet {
         }
 
     public void setup() {
+        
+        
         start = new StartButton(this, "images/startsign.png", 320, 210);
         start1 = new StartButton(this, "images/abtgamesign.png", 300, 320);
         map = new StartButton(this, "images/map.png", 50, 30);
+        plantbg = new Village_bg(this, "images/graden.png", 0, 0);
 
         
         UserdiaArray[0] = new String[2];
         UserdiaArray[0][0] = "images/txtU1(1).png";
         UserdiaArray[0][1] = "images/txtU1(2).png";
         
-        UserdiaArray[1] = new String[3];
+        kiyomidiaArray[0] = new String[4];
+        kiyomidiaArray[0][0] = "images/txtK1(1).png";
+        kiyomidiaArray[0][1] = "images/txtK1(2).png";
+        kiyomidiaArray[0][2] = "images/txtK1(3).png"; 
+        kiyomidiaArray[0][3] = "images/txtK1(4).png";
+        
+        micahdiaArray[0] = new String[3];
+        micahdiaArray[0][0] = "images/txtM1(1).png";
+        micahdiaArray[0][1] = "images/txtM1(2).png";
+        micahdiaArray[0][2] = "images/txtM1(3).png";
+        
+        //if time make micky stand when clicked 
+        mickydiaArray[0] = new String[4];
+        mickydiaArray[0][0] = "images/txtMy1(1).png";
+        mickydiaArray[0][1] = "images/txtMy1(2).png";
+        mickydiaArray[0][2] = "images/txtMy1(3).png";
+        mickydiaArray[0][3] = "images/txtMy1(4).png";
+
+        catherinediaArray[0] = new String [2];
+        catherinediaArray[0][0] = "images/txtC2(1).png";
+        catherinediaArray[0][1] = "images/txtC2(2).png";
         
         images = new PImage[numImages];
         for (int i = 0; i < numImages; i++) {
@@ -90,20 +140,28 @@ public class MainSketch extends PApplet {
         character = new chara(this, "images/character.png", 300,240);
         micah = new Person(this, "images/villager1.png", 450, 200);
         kiyomi = new Person(this, "images/villager2.png", 28, 96);
-        micky = new Person(this, "images/villager3.png", 304,424);
+        micky = new Person(this, "images/villager3.png", 290,430);
+        catherine = new Person(this, "images/catherine.png" , 420,330);
         
+        chillseed = new StartButton(this, "images/chillseed.png", 50,100);
+        peachseed = new StartButton(this, "images/peachseed.png", 140,100);
+        radishseed = new StartButton(this, "images/radishseed.png", 250,100);
+        grapeseed = new StartButton(this, "images/grapeseed.png", 400,100);
+        seed_select = new seeds(this, "images/sel_chill.png", 20, 420);
+
+                
         textbox = new dialoge(this, "images/" + ctxt+".png", 111,295);
-        gno = new dialoge(this, "images/3.png", 395,5);
-        currentgno = new dialoge(this, "images/4.png", 480,25);
+        gno = new dialoge(this, "images/3.png", 3,5);
+        currentgno = new dialoge(this, "images/gno1.png", 5,25);
         title = new Person(this, "images/title.png", 200,25);
         
-        if (stage == 2){
-            
-        }
+        //gardening stuff
+        plantPOPup = new items(this, "images/yOn.png", 100, 240-91);
+        exit = new items(this, "images/exit.png", 5, 5);
+        
     }
 
     public void draw() {
-            
     if (keyPressed && key == 'a' && !maplock) {
         maplock = true;
         map_open = !map_open;
@@ -113,9 +171,26 @@ public class MainSketch extends PApplet {
         maplock = false;
     }
 
+    if (currentBackground == 11 && keyPressed && (key == 'e' || key == 'E')) {
+    currentBackground = 2; 
+}
+    if (villagers_talked2 >= 3)
+            stage =2;
+        if (stage == 2){
+           currentgno.setImage("images/gno2.png");
+           villagers_talked2 = 0;
+        }
+       
         
-
+        
         background(0);
+        if (currentBackground == 11){
+            plantbg.draw();
+            exit.draw();
+            gardening();
+
+           }
+             
         if (stage == 0){
             image(images[imgIndex], 0, 0, width, height);
             if (frameCount % 10 == 0) {
@@ -132,11 +207,9 @@ public class MainSketch extends PApplet {
                       
         }
         
-        if (stage==1){
+        if (stage!=0 && currentBackground != 11){
            backgrounds[currentBackground-1].draw();
            character.draw();
-           if (user_talking)
-            textbox.draw();
            gno.draw();
            currentgno.draw();
            //System.out.println(character.x +","+ character.y);
@@ -171,17 +244,69 @@ public class MainSketch extends PApplet {
                     if (micah_talking && !spacelock){
                      spacelock=true;
                     row_dia++;
-                    if (row_dia != UserdiaArray[collom_dia].length)
-                        textbox.setImage(UserdiaArray[collom_dia][row_dia]);
+                    if (row_dia != micahdiaArray[0].length)
+                        textbox.setImage(micahdiaArray[0][row_dia]);
 
-                    if (row_dia >= UserdiaArray[collom_dia].length) {
-                        user_talking = false;
+                    if (row_dia >= micahdiaArray[0].length) {
+                        micah_talking = false;
                         row_dia = 0;
-                        start_userdia = false;
-                        collom_dia++;
                 }   
                     }
+
            }
+                if (key == ' ' && kiyomi_talking && !spacelock && !kiyomi_choice) {
+                spacelock = true;
+                kiyomi_row++;
+
+                if (kiyomi_row < kiyomidiaArray[0].length-2) {
+                    textbox.setImage(kiyomidiaArray[0][kiyomi_row]);
+
+                    if (kiyomi_row == 1) {
+                        kiyomi_choice = true;
+                    }
+                } 
+                else {
+                    kiyomi_talking = false;
+                    kiyomi_row = 0;
+                    kiyomi_choice = false;
+                }
+            }
+
+            if (key == ' ' && micky_talking && !spacelock) {
+                spacelock = true;
+                row_dia++;
+
+                if (row_dia != mickydiaArray[0].length)
+                        textbox.setImage(mickydiaArray[0][row_dia]);
+
+                    if (row_dia >= mickydiaArray[0].length) {
+                        micky_talking = false;
+                        row_dia = 0;
+                }   
+                    }
+            
+            
+            if (key == ' ' && cat_talking && !spacelock) {
+                spacelock = true;
+                row_dia++;
+
+                if (row_dia != catherinediaArray[0].length)
+                        textbox.setImage(catherinediaArray[0][row_dia]);
+
+                    if (row_dia >= catherinediaArray[0].length) {
+                        cat_talking = false;
+                        row_dia = 0;
+                        show_seed = false;
+                        stage = 3;
+                        currentgno.setImage("images/gno3.png");
+
+                        
+
+                }   
+                    }
+
+
+
            }
         if (!keyPressed || key != ' ') {
             spacelock = false;
@@ -213,6 +338,8 @@ public class MainSketch extends PApplet {
            }
            else if (currentBackground == 8) {
                updateBackground8();
+               if (stage ==2)
+                catherine.draw();
            }
            else if (currentBackground == 9) {
                updateBackground9();
@@ -221,25 +348,134 @@ public class MainSketch extends PApplet {
                updateEliasHome();
            }
            
+         if (cat_talking || user_talking || kiyomi_talking || micah_talking || micky_talking)
+            textbox.draw();
+           
         }
         
                 if (map_open){
             map.draw();
         }
+                
+                
+                
+       if (show_seed){
+           chillseed.draw();
+           peachseed.draw();
+           radishseed.draw();
+           grapeseed.draw();
+           
+       }
+       
     }
+    
     
         // Mouse click detection
     public void mousePressed() {
+        if (chillseed.isClicked(mouseX, mouseY)) {
+            seed_select.setImage("images/sel_chill.png");
+            seedChosen = true;
+            System.out.print(seed_select);
+        }
+        else if (peachseed.isClicked(mouseX, mouseY)) {
+            seed_select.setImage("images/sel_peach.png");
+            seedChosen = true;
+            System.out.print(seed_select);
+        }
+        else if (radishseed.isClicked(mouseX, mouseY)) {
+            seed_select.setImage("images/sel_radish.png");
+            seedChosen = true;
+                        System.out.print(seed_select);
+
+        }
+        else if (grapeseed.isClicked(mouseX, mouseY)) {
+            seed_select.setImage("images/sel_grape.png");
+            seedChosen = true;
+            System.out.print(seed_select);
+        }
         if (start1.isClicked(mouseX, mouseY)) {
             stage = 1;
             changeStage(1);
+}
             
         if (micah.isClicked(mouseX, mouseY)){
             villagers_talked2 ++;
             micah_talking = true;
+            user_talking = false;
+            
+            row_dia = 0;
+            textbox.setImage(micahdiaArray[0][0]);
+
         }
+        
+        if (micky.isClicked(mouseX, mouseY)){
+            villagers_talked2 ++;
+            micky_talking = true;
+            user_talking = false;
+            
+            row_dia = 0;
+            textbox.setImage(mickydiaArray[0][0]);
+
         }
+        
+        
+        if (catherine.isClicked(mouseX, mouseY)){
+           cat_talking = true;
+           
+            row_dia = 0;
+           textbox.setImage(catherinediaArray[0][0]);
+           if (show_seed)
+               show_seed = !show_seed;
+           else
+            show_seed = true; 
+        }
+
+
+        if (stage == 1 && kiyomi.isClicked(mouseX, mouseY) && !kiyomi_talking) {
+        kiyomi_talking = true;
+        user_talking = false;
+        villagers_talked2++;
+
+        kiyomi_row = 0;
+        kiyomi_choice = false;
+        textbox.setImage(kiyomidiaArray[0][0]);
     }
+        if (kiyomi_talking && kiyomi_choice) {
+            if (mouseY < 420) {
+                textbox.setImage(kiyomidiaArray[0][2]);
+            }
+            else {
+                textbox.setImage(kiyomidiaArray[0][3]);
+            }
+
+    kiyomi_choice = false; 
+    
+
+    
+
+}
+        if (currentBackground == 11 && !seedPlanted) {
+    if (seed_select.isClicked(mouseX, mouseY)) {
+        showPlantPopup = true;
+    }
+    
+    else if (showPlantPopup) {
+        if (mouseX < 480 / 2) {
+            seedPlanted = true;
+            showPlantPopup = false;
+            stage = 4;
+            currentgno.setImage("images/gno4.png");
+        }
+
+        else {
+            showPlantPopup = false;
+        }
+}
+}    
+        }
+    
+    
+    
     
     
     void updateEliasHome() {
@@ -293,6 +529,12 @@ public class MainSketch extends PApplet {
             currentBackground = 5;
             character.setPos(234, 52);
         }
+        
+        if (character.x>-1 && character.x<42 && character.y<256){
+            currentBackground = 11;
+            character.setPos(character.x,263);
+        }
+        
     }
     
     void updateBackground4() {
@@ -321,7 +563,7 @@ public class MainSketch extends PApplet {
             currentBackground = 8;
             character.setPos(350, 80);
         } 
-        else if (character.x > 678 && character.y > 168 && character.y < 248) {
+        else if (character.x > 678 && character.y > 150 && character.y < 248) {
             currentBackground = 4;
             character.setPos(64, 210);
         }
@@ -352,7 +594,6 @@ public class MainSketch extends PApplet {
             character.setPos(51, 60);
         }
         
-        //if (character)
     }
 
     void updateBackground8() {
@@ -385,4 +626,13 @@ public class MainSketch extends PApplet {
             character.setPos(124, 460);
         }
     }
+    
+void gardening(){
+    if (!seedPlanted) { //hasnt been planted
+        seed_select.draw();}
+    if (showPlantPopup) {
+        plantPOPup.draw();
+    
+}
+}
 }
