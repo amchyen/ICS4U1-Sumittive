@@ -22,7 +22,7 @@ public class MainSketch extends PApplet {
     private Person catherine;
     
     private dialoge textbox;
-    private dialoge kingtxtbox;
+    private dialoge finaltxtbox;
     private dialoge gno;
     private dialoge currentgno;
     private Person title;
@@ -36,6 +36,13 @@ public class MainSketch extends PApplet {
     String[][] kiyomidiaArray = new String[1][];
     String[][] mickydiaArray = new String[1][];
     String[][] catherinediaArray = new String[1][];
+    String[] kingdiaArray = new String [3];
+    String[] WindiaArray = new String [6];
+    String[] losediaArray = new String [5];
+    
+    dialoge Win_message;
+    dialoge loser_mess;
+
 
 
     boolean king_talking = false;
@@ -62,6 +69,7 @@ public class MainSketch extends PApplet {
    
     boolean kiyomi_choice = false;  
     int kiyomi_row = 0;
+    int king_row = 0;
    
    int villagers_talked2 = 0;
    
@@ -171,7 +179,7 @@ public class MainSketch extends PApplet {
         grapeseed = new StartButton(this, "images/grapeseed.png", 400,100);
         seed_select = new seeds(this, "images/sel_chill.png", 20, 420);
 
-        kingtxtbox = new dialoge(this, "images/.png", 0,295);  
+        finaltxtbox = new dialoge(this, "images/txtK1(1).png", 0,295);  
         textbox = new dialoge(this, "images/" + ctxt+".png", 111,295);
         gno = new dialoge(this, "images/3.png", 3,5);
         currentgno = new dialoge(this, "images/gno1.png", 5,25);
@@ -182,7 +190,29 @@ public class MainSketch extends PApplet {
         exit = new items(this, "images/exit.png", 5, 5);
         waterBucket = new items (this, "images/waterbucket.png", 14, 360);
         soil = new items (this, "images/soil.png", 20,420);
+        
+        
+        
+        kingdiaArray[0] = "txtK1(1)";
+        kingdiaArray[1] = "txtK1(2)";
+        kingdiaArray[2] = "txtK1(3)";
+        
+        WindiaArray[0] = "txtU3G(1)";
+        WindiaArray[1] = "txtU3G(2)";
+        WindiaArray[2] = "txtU1K(1)";
+        WindiaArray[3] = "txtU1K(2)";
+        WindiaArray[4] = "txtU1K(3)";
+        WindiaArray[5] = "txtU1K(4)";
+        
+        losediaArray[0] = "txtU3B(1)";
+        losediaArray[0] = "txtU3B(2)";
+        losediaArray[0] = "txtK1B(1)";
+        losediaArray[0] = "txtU3B(3)";
+        losediaArray[0] = "txtK1B(2)";
+
     
+    dialoge Win_message = new dialoge (this, "images/WINN.png", 20,20);;
+    dialoge loser_mess = new dialoge (this, "images/lose.png", 20,20);;
     }
 
     public void draw() {
@@ -258,6 +288,7 @@ public class MainSketch extends PApplet {
                   character.x += 2;
                 if (keyCode == RIGHT && character.x > 297) {
                     king_talking = true;
+                    king_row = 0;
                     
                 }
                }
@@ -455,7 +486,7 @@ if (stage == 4) {
 
 
     if (currentBackground == 12 && king_talking){
-        kingtxtbox.draw();
+        finaltxtbox.draw();
     }
 }
     
