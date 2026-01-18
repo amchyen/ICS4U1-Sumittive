@@ -22,11 +22,12 @@ public class MainSketch extends PApplet {
     private Person catherine;
     
     private dialoge textbox;
+    private dialoge kingtxtbox;
     private dialoge gno;
     private dialoge currentgno;
     private Person title;
-    private int currentBackground = 10;
-    Village_bg[] backgrounds = new Village_bg[10];
+    private int currentBackground = 1;
+    Village_bg[] backgrounds = new Village_bg[12];
     int row_dia = 0;
     int collom_dia = 0;
     
@@ -37,7 +38,7 @@ public class MainSketch extends PApplet {
     String[][] catherinediaArray = new String[1][];
 
 
-    
+    boolean king_talking = false;
     boolean user_talking = true;
     boolean micky_talking = false;
     boolean suni_talking = false;
@@ -51,7 +52,8 @@ public class MainSketch extends PApplet {
     
     items plantPOPup;
     items exit;
-    
+    items waterBucket;
+    items soil;
     
    boolean spacelock = false;
    boolean maplock = false;
@@ -68,8 +70,22 @@ public class MainSketch extends PApplet {
    StartButton radishseed;
    StartButton grapeseed;
    
-   //change class later
    seeds seed_select;
+   float waterLevel = 100;
+    float soilLevel = 100;
+    int stage4StartTime;
+    //int fiveMinutes = 5 * 60 * 1000; 
+    int fiveMinutes = 30 * 1000; 
+
+    boolean waterCollected = false;
+    boolean soilCollected = false
+           ;
+    boolean soilPressed = false;
+    boolean waterPressed = false;
+   
+   
+   
+   
    
     void changeStage(int newStage) {
         stage = newStage;
@@ -95,8 +111,13 @@ public class MainSketch extends PApplet {
 
         
         UserdiaArray[0] = new String[2];
+        UserdiaArray[1] = new String [3];
         UserdiaArray[0][0] = "images/txtU1(1).png";
         UserdiaArray[0][1] = "images/txtU1(2).png";
+        UserdiaArray[1][0] = "images/txtU2(1).png";
+        UserdiaArray[1][1] = "images/txtU2(2).png";
+        UserdiaArray[1][2] = "images/txtU2(3).png";
+
         
         kiyomidiaArray[0] = new String[4];
         kiyomidiaArray[0][0] = "images/txtK1(1).png";
@@ -135,6 +156,7 @@ public class MainSketch extends PApplet {
         backgrounds[7] = new Village_bg(this, "images/row-3-column-2.png", 0, 0);
         backgrounds[8] = new Village_bg(this, "images/row-3-column-3.png", 0, 0);
         backgrounds[9] = new Village_bg(this, "images/userhome.png", 61, 40);
+        backgrounds[11] = new Village_bg(this, "images/king.png", 0,0);
         
         
         character = new chara(this, "images/character.png", 300,240);
@@ -149,7 +171,7 @@ public class MainSketch extends PApplet {
         grapeseed = new StartButton(this, "images/grapeseed.png", 400,100);
         seed_select = new seeds(this, "images/sel_chill.png", 20, 420);
 
-                
+        kingtxtbox = new dialoge(this, "images/.png", 0,295);  
         textbox = new dialoge(this, "images/" + ctxt+".png", 111,295);
         gno = new dialoge(this, "images/3.png", 3,5);
         currentgno = new dialoge(this, "images/gno1.png", 5,25);
@@ -158,7 +180,9 @@ public class MainSketch extends PApplet {
         //gardening stuff
         plantPOPup = new items(this, "images/yOn.png", 100, 240-91);
         exit = new items(this, "images/exit.png", 5, 5);
-        
+        waterBucket = new items (this, "images/waterbucket.png", 14, 360);
+        soil = new items (this, "images/soil.png", 20,420);
+    
     }
 
     public void draw() {
@@ -207,7 +231,7 @@ public class MainSketch extends PApplet {
                       
         }
         
-        if (stage!=0 && currentBackground != 11){
+        if (stage!=0 && currentBackground != 11 && currentBackground !=12){
            backgrounds[currentBackground-1].draw();
            character.draw();
            gno.draw();
@@ -215,20 +239,33 @@ public class MainSketch extends PApplet {
            //System.out.println(character.x +","+ character.y);
 
            if (keyPressed) {
+               if (currentBackground != 12){
                 if (keyCode == LEFT) {
                   character.x -= 3;
                 }
                 if (keyCode == RIGHT) {
                   character.x += 3;
                 }
-                if (keyCode == UP) {
+                if (keyCode == UP && currentBackground != 12) {
                   character.y -= 3;
                 }
-                if (keyCode == DOWN) {
+                if (keyCode == DOWN && currentBackground != 12) {
                   character.y += 3;
                 }
+               }
+               else {
+                if (keyCode == RIGHT && character.x < 297 && !king_talking) {
+                  character.x += 2;
+                if (keyCode == RIGHT && character.x > 297) {
+                    king_talking = true;
+                    
+                }
+               }
+               }
+               
                 if (key == ' '){
-                    if (user_talking && !spacelock && start_userdia){
+                    if (user_talking && !spacelock){
+                        if (start_userdia || stage == 5){
                     spacelock=true;
                     row_dia++;
                     if (row_dia != UserdiaArray[collom_dia].length)
@@ -241,6 +278,7 @@ public class MainSketch extends PApplet {
                         collom_dia++;
                 }   
             }
+                    }
                     if (micah_talking && !spacelock){
                      spacelock=true;
                     row_dia++;
@@ -304,7 +342,7 @@ public class MainSketch extends PApplet {
 
                 }   
                     }
-
+               
 
 
            }
@@ -348,6 +386,7 @@ public class MainSketch extends PApplet {
                updateEliasHome();
            }
            
+           
          if (cat_talking || user_talking || kiyomi_talking || micah_talking || micky_talking)
             textbox.draw();
            
@@ -367,33 +406,86 @@ public class MainSketch extends PApplet {
            
        }
        
+ 
+if (stage == 4) {
+        // 1. DRAIN LOGIC: Keep the levels updating
+        waterLevel = constrain(waterLevel - 0.01f, 0, 100);
+        soilLevel = constrain(soilLevel - 0.01f, 0, 100);
+        drawSurvivalBars();
+        if (currentBackground != 11) {
+            if (waterCollected) {
+                fill(0, 150, 255);
+                rect(20, height - 40, 20, 20); 
+                fill(255);
+                textSize(10);
+                text("WATER", 15, height - 45);
+            }
+            if (soilCollected) {
+                fill(139, 69, 19);
+                rect(60, height - 40, 20, 20); 
+                fill(255);
+                text("SOIL", 60, height - 45);
+            }
+        }
+
+        // 4. GARDEN SPECIFIC: Show the clickable items only when in the Garden
+        if (currentBackground == 11) {
+            if (waterCollected) {
+                waterBucket.draw(); // Draws the actual bucket image in the garden
+            }
+            if (soilCollected) {
+                soil.draw(); // Draws the actual soil image in the garden
+            }
+            
+            if (showPlantPopup) {
+                plantPOPup.draw();
+            }
+        }
+
+        // 5. TIMER: Transitions to stage 5
+        if (millis() - stage4StartTime >= fiveMinutes) {
+            stage = 5;
+            currentgno.setImage("images/gno5.png");
+            user_talking = true;
+            textbox.setImage(UserdiaArray[1][0]);
+        }
     }
+
+
+
+
+    if (currentBackground == 12 && king_talking){
+        kingtxtbox.draw();
+    }
+}
     
     
         // Mouse click detection
     public void mousePressed() {
+        if (cat_talking){
         if (chillseed.isClicked(mouseX, mouseY)) {
             seed_select.setImage("images/sel_chill.png");
             seedChosen = true;
-            System.out.print(seed_select);
+            System.out.print("chill");
         }
         else if (peachseed.isClicked(mouseX, mouseY)) {
             seed_select.setImage("images/sel_peach.png");
             seedChosen = true;
-            System.out.print(seed_select);
+            System.out.print("peach");
         }
         else if (radishseed.isClicked(mouseX, mouseY)) {
             seed_select.setImage("images/sel_radish.png");
             seedChosen = true;
-                        System.out.print(seed_select);
+            System.out.print("radish");
 
         }
         else if (grapeseed.isClicked(mouseX, mouseY)) {
             seed_select.setImage("images/sel_grape.png");
             seedChosen = true;
-            System.out.print(seed_select);
+            System.out.print("grape");
         }
-        if (start1.isClicked(mouseX, mouseY)) {
+        }
+        if (start1.isClicked(mouseX, mouseY) && stage == 0) {
             stage = 1;
             changeStage(1);
 }
@@ -455,24 +547,80 @@ public class MainSketch extends PApplet {
 
 }
         if (currentBackground == 11 && !seedPlanted) {
-    if (seed_select.isClicked(mouseX, mouseY)) {
-        showPlantPopup = true;
-    }
-    
-    else if (showPlantPopup) {
-        if (mouseX < 480 / 2) {
-            seedPlanted = true;
-            showPlantPopup = false;
-            stage = 4;
-            currentgno.setImage("images/gno4.png");
+        if (seed_select.isClicked(mouseX, mouseY)) {
+            showPlantPopup = true;
         }
 
-        else {
-            showPlantPopup = false;
-        }
-}
+        else if (showPlantPopup) {
+            if (mouseX < 480 / 2) {
+                seedPlanted = true;
+                showPlantPopup = false;
+                stage = 4;
+                currentgno.setImage("images/gno4.png");
+                stage4StartTime = millis(); 
+            }
+
+            else {
+                showPlantPopup = false;
+            }
+    }
 }    
+        
+if (stage == 4) {
+        // COLLECTION: Background 5 (Well)
+        if (currentBackground == 5 && !waterCollected) {
+            if (mouseX > 309 && mouseY < 121) {
+                waterCollected = true;
+                System.out.println("Water Bucket Collected!");
+            }
         }
+
+        // COLLECTION: Background 7 (Soil Patch)
+        if (currentBackground == 6 && !soilCollected) {
+            if (mouseX > 393 && mouseY > 256) {
+                soilCollected = true;
+                showPlantPopup = false;
+                soilPressed = false;
+                System.out.println("Soil Collected!");
+            }
+        }
+
+        // USAGE: Background 11 (Garden)
+        if (currentBackground == 11) {
+            // Open popup if player clicks plant AND has an item
+            if (!showPlantPopup && waterBucket.isClicked(mouseX, mouseY)) {
+                if (waterCollected) {
+                    showPlantPopup = true;
+                    waterPressed = true;
+                    
+                
+                }}
+            if (!showPlantPopup && soil.isClicked(mouseX, mouseY)) {
+                 if (soilCollected){
+                    showPlantPopup = true;
+                    soilPressed = true;}
+            }
+            // Handle the Yes/No click on the shared popup
+            else if (showPlantPopup) {
+                if (mouseX < 480 / 2) { // Clicked "YES"
+                    if (waterCollected && waterPressed) {
+                        waterLevel = 100;
+                        waterCollected = false;
+                        waterPressed = false;
+                    } else if (soilCollected && soilPressed) {
+                        soilLevel = 100;
+                        soilCollected = false; // Item consumed
+                        soilPressed = false;
+                    }
+                    showPlantPopup = false;
+                } else { // Clicked "NO"
+                    showPlantPopup = false;
+                }
+            }
+        }
+    }
+
+}
     
     
     
@@ -509,7 +657,11 @@ public class MainSketch extends PApplet {
         
         if (character.x <=121)
             character.x =121;
-        
+        if (character.y< 0  && stage == 5){
+            currentBackground = 12;
+            character.setPos(0,360);
+            character.setImage("images/chara_right.png");
+        }
     }
 
     void updateBackground2() {
@@ -633,6 +785,28 @@ void gardening(){
     if (showPlantPopup) {
         plantPOPup.draw();
     
-}
-}
-}
+        }
+    }
+void drawSurvivalBars() {
+    // Position settings
+    int barWidth = 100;
+    int barHeight = 15;
+    int xPos = width - 120;
+    
+    // Water Bar
+    fill(50); // Dark grey background for the bar
+    rect(xPos, 30, barWidth, barHeight); 
+    fill(0, 150, 255); // Blue
+    rect(xPos, 30, waterLevel, barHeight); 
+    fill(255);
+    textSize(12);
+    text("WATER", xPos, 25);
+
+    // Soil Bar
+    fill(50); 
+    rect(xPos, 70, barWidth, barHeight); 
+    fill(139, 69, 19); // Brown
+    rect(xPos, 70, soilLevel, barHeight); 
+    fill(255);
+    text("SOIL HEALTH", xPos, 65);
+}}
