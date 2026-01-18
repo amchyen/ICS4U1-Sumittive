@@ -2,6 +2,13 @@ package sigh;
 
 import processing.core.PApplet;
 import processing.core.PImage;
+import java.io.File;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.FileWriter;
+import java.util.Scanner;
+import java.io.FileNotFoundException;
+
 
 public class MainSketch extends PApplet {
     PImage[] images;  
@@ -13,6 +20,7 @@ public class MainSketch extends PApplet {
     private StartButton start;
     private StartButton start1;
     private StartButton map;
+    private dialoge feedback;
     
     private int stage = 0;
     private chara character;
@@ -26,10 +34,11 @@ public class MainSketch extends PApplet {
     private dialoge gno;
     private dialoge currentgno;
     private Person title;
-    private int currentBackground = 1;
+    private int currentBackground = 10;
     Village_bg[] backgrounds = new Village_bg[12];
     int row_dia = 0;
     int collom_dia = 0;
+    int ending_row = 0;
     
     String [][] UserdiaArray = new String [2][];
     String [][] micahdiaArray = new String [3][];
@@ -42,6 +51,7 @@ public class MainSketch extends PApplet {
     
     dialoge Win_message;
     dialoge loser_mess;
+    String mostCommonWord = "";
 
 
 
@@ -56,11 +66,18 @@ public class MainSketch extends PApplet {
     boolean seedPlanted = false;
     boolean showPlantPopup = false;
     boolean seedChosen = false;
+    boolean king_choice = false;
+    boolean choseWin = false;
+    boolean playEnd = true;
+    boolean showFeed = false;
+    boolean feedChoice = false;
     
     items plantPOPup;
     items exit;
     items waterBucket;
     items soil;
+    items activeItem = null;
+
     
    boolean spacelock = false;
    boolean maplock = false;
@@ -96,7 +113,6 @@ public class MainSketch extends PApplet {
    
    
     void changeStage(int newStage) {
-        stage = newStage;
 
         if (stage == 0) {
             surface.setSize(837, 522);
@@ -115,7 +131,7 @@ public class MainSketch extends PApplet {
         start = new StartButton(this, "images/startsign.png", 320, 210);
         start1 = new StartButton(this, "images/abtgamesign.png", 300, 320);
         map = new StartButton(this, "images/map.png", 50, 30);
-        plantbg = new Village_bg(this, "images/graden.png", 0, 0);
+        plantbg = new Village_bg(this, "images/graden.png");
 
         
         UserdiaArray[0] = new String[2];
@@ -154,17 +170,17 @@ public class MainSketch extends PApplet {
             images[i] = loadImage("images/frame_" + i + ".png");
         }
         
-        backgrounds[0] = new Village_bg(this, "images/row-1-column-1.png", 0, 0);
-        backgrounds[1] = new Village_bg(this, "images/row-1-column-2.png", 0, 0);
-        backgrounds[2] = new Village_bg(this, "images/row-1-column-3.png", 0, 0);
-        backgrounds[3] = new Village_bg(this, "images/row-2-column-3.png", 0, 0);
-        backgrounds[4] = new Village_bg(this, "images/row-2-column-2.png", 0, 0);
-        backgrounds[5] = new Village_bg(this, "images/row-2-column-1.png", 0, 0);
-        backgrounds[6] = new Village_bg(this, "images/row-3-column-1.png", 0, 0);
-        backgrounds[7] = new Village_bg(this, "images/row-3-column-2.png", 0, 0);
-        backgrounds[8] = new Village_bg(this, "images/row-3-column-3.png", 0, 0);
+        backgrounds[0] = new Village_bg(this, "images/row-1-column-1.png");
+        backgrounds[1] = new Village_bg(this, "images/row-1-column-2.png");
+        backgrounds[2] = new Village_bg(this, "images/row-1-column-3.png");
+        backgrounds[3] = new Village_bg(this, "images/row-2-column-3.png");
+        backgrounds[4] = new Village_bg(this, "images/row-2-column-2.png");
+        backgrounds[5] = new Village_bg(this, "images/row-2-column-1.png");
+        backgrounds[6] = new Village_bg(this, "images/row-3-column-1.png");
+        backgrounds[7] = new Village_bg(this, "images/row-3-column-2.png");
+        backgrounds[8] = new Village_bg(this, "images/row-3-column-3.png");
         backgrounds[9] = new Village_bg(this, "images/userhome.png", 61, 40);
-        backgrounds[11] = new Village_bg(this, "images/king.png", 0,0);
+        backgrounds[11] = new Village_bg(this, "images/king.png");
         
         
         character = new chara(this, "images/character.png", 300,240);
@@ -179,7 +195,7 @@ public class MainSketch extends PApplet {
         grapeseed = new StartButton(this, "images/grapeseed.png", 400,100);
         seed_select = new seeds(this, "images/sel_chill.png", 20, 420);
 
-        finaltxtbox = new dialoge(this, "images/txtK1(1).png", 0,295);  
+        finaltxtbox = new dialoge(this, "images/txtK1(1)_1.png", 100,100);  
         textbox = new dialoge(this, "images/" + ctxt+".png", 111,295);
         gno = new dialoge(this, "images/3.png", 3,5);
         currentgno = new dialoge(this, "images/gno1.png", 5,25);
@@ -188,39 +204,42 @@ public class MainSketch extends PApplet {
         //gardening stuff
         plantPOPup = new items(this, "images/yOn.png", 100, 240-91);
         exit = new items(this, "images/exit.png", 5, 5);
-        waterBucket = new items (this, "images/waterbucket.png", 14, 360);
-        soil = new items (this, "images/soil.png", 20,420);
+        waterBucket = new WaterBucket(this, "images/waterbucket.png", 14, 360);
+        soil = new Soil(this, "images/soil.png", 20, 420);
         
         
         
-        kingdiaArray[0] = "txtK1(1)";
-        kingdiaArray[1] = "txtK1(2)";
-        kingdiaArray[2] = "txtK1(3)";
+        kingdiaArray[0] = "txtK1(1)_1";
+        kingdiaArray[1] = "txtK1(2)_1";
+        kingdiaArray[2] = "txtK1(3)_1";
         
         WindiaArray[0] = "txtU3G(1)";
         WindiaArray[1] = "txtU3G(2)";
-        WindiaArray[2] = "txtU1K(1)";
-        WindiaArray[3] = "txtU1K(2)";
-        WindiaArray[4] = "txtU1K(3)";
-        WindiaArray[5] = "txtU1K(4)";
+        WindiaArray[2] = "txtK1G(1)";
+        WindiaArray[3] = "txtK1G(2)";
+        WindiaArray[4] = "txtK1G(3)";
+        WindiaArray[5] = "txtK1G(4)";
         
         losediaArray[0] = "txtU3B(1)";
-        losediaArray[0] = "txtU3B(2)";
-        losediaArray[0] = "txtK1B(1)";
-        losediaArray[0] = "txtU3B(3)";
-        losediaArray[0] = "txtK1B(2)";
+        losediaArray[1] = "txtU3B(2)";
+        losediaArray[2] = "txtK1B(1)";
+        losediaArray[3] = "txtU3B(3)";
+        losediaArray[4] = "txtK1B(2)";
 
     
-    dialoge Win_message = new dialoge (this, "images/WINN.png", 20,20);;
-    dialoge loser_mess = new dialoge (this, "images/lose.png", 20,20);;
+        Win_message = new dialoge (this, "images/WINN.png", 20,20);
+        loser_mess = new dialoge (this, "images/lose.png", 20,20);
+        
+        feedback = new dialoge(this, "images/feedback_base.png", -10,-3);
     }
 
-    public void draw() {
+    public void draw() {  
+        
+        //(mouseX + "," + mouseY);
     if (keyPressed && key == 'a' && !maplock) {
         maplock = true;
         map_open = !map_open;
     }
-
     if (!keyPressed || key != 'a') {
         maplock = false;
     }
@@ -254,25 +273,27 @@ public class MainSketch extends PApplet {
                 }
             }
             
-            start.draw();
             start1.draw();
+            start.draw();
             title.draw();
             
                       
         }
         
-        if (stage!=0 && currentBackground != 11 && currentBackground !=12){
+        if (stage!=0 && currentBackground != 11){
            backgrounds[currentBackground-1].draw();
+           
            character.draw();
+           if (currentBackground !=12){
            gno.draw();
-           currentgno.draw();
+           currentgno.draw();}
            //System.out.println(character.x +","+ character.y);
 
            if (keyPressed) {
                if (currentBackground != 12){
-                if (keyCode == LEFT) {
+                if (keyCode == LEFT) 
                   character.x -= 3;
-                }
+                
                 if (keyCode == RIGHT) {
                   character.x += 3;
                 }
@@ -373,10 +394,46 @@ public class MainSketch extends PApplet {
 
                 }   
                     }
-               
+            
+             if (key == ' ' && king_talking && !spacelock && !playEnd) {
+                spacelock = true;
+                king_row++;
 
+                // Normal king dialogue
+                if (king_row < kingdiaArray.length) {
+                    finaltxtbox.setImage("images/" + kingdiaArray[king_row] + ".png");
 
-           }
+                    // THIRD IMAGE → activate choice
+                    if (king_row == 2) {
+                        king_choice = true;
+                    }
+                }
+            }  
+
+        if (key == ' ' && playEnd && !spacelock) {
+            spacelock = true;
+                String[] currentArray;
+
+                if (choseWin) {
+                    currentArray = WindiaArray;
+                } else {
+                    currentArray = losediaArray;
+                }
+            if (ending_row < currentArray.length) {
+                finaltxtbox.setImage("images/" + currentArray[ending_row] + ".png");
+                ending_row++;
+            }
+            else {
+                playEnd = false;
+            }
+        }
+        
+        
+        if (playEnd && key == 'h'){
+            resetGame();
+            println("game reset");
+        }
+                   }
         if (!keyPressed || key != ' ') {
             spacelock = false;
     }
@@ -485,15 +542,93 @@ if (stage == 4) {
 
 
 
-    if (currentBackground == 12 && king_talking){
+    if (currentBackground == 12){
+        if (king_talking || playEnd){
         finaltxtbox.draw();
+if (playEnd) {
+    if (choseWin) {
+        if (ending_row >= WindiaArray.length) {
+            Win_message.draw();
+        }
+    } 
+    else {
+        if (ending_row >= losediaArray.length) {
+            loser_mess.draw();
+        }
     }
+}
+    }
+    }
+    
+    
+           if (showFeed) {
+            feedback.draw();
+           
+           if (feedChoice){
+               if (mostCommonWord.equals("story")){
+                   feedback.setImage("images/story.png");
+               }
+               else if (mostCommonWord.equals("INpie")){
+                   feedback.setImage("images/INpie.png");
+               }
+                else if (mostCommonWord.equals("graphics")){
+                   feedback.setImage("images/Graphics.png");
+               }
+                else {
+                // Show base feedback page (neutral)
+                feedback.setImage("images/feedback_base.png");
+            }
+           }
+           
+           
+       }
 }
     
     
         // Mouse click detection
     public void mousePressed() {
+        if (start1.isClicked(mouseX, mouseY) && stage == 5){
+            playEnd = false;
+            showFeed = true;
+            stage = 0;
+        }
+        else if (showFeed && !feedChoice){
+                 try{
+                    //Initialize writing variable
+                    FileWriter writer;
+                    writer = new FileWriter("feedback.txt", true);
+                    PrintWriter output = new PrintWriter(writer);
+                    //write to file
+            if (mouseY <280){
+                    output.println("story");
+            }
+            else if (mouseY < 357){
+                    output.println("INpie");
+            
+            }
+                else{
+                   output.println("graphics");
+
+            }
+            output.close();      
+                
+                 }
+                catch(IOException e){
+
+                }
+                 
+                 MostCommonWordCount();
+                feedChoice = true;
+                 
+                 }
+            if (mouseY >357){
+                                
+                            }
+
+            
+        
         if (cat_talking){
+            
         if (chillseed.isClicked(mouseX, mouseY)) {
             seed_select.setImage("images/sel_chill.png");
             seedChosen = true;
@@ -511,12 +646,12 @@ if (stage == 4) {
 
         }
         else if (grapeseed.isClicked(mouseX, mouseY)) {
-            seed_select.setImage("images/sel_grape.png");
+            seed_select.setImage("images/sel_grapes.png");
             seedChosen = true;
             System.out.print("grape");
         }
         }
-        if (start1.isClicked(mouseX, mouseY) && stage == 0) {
+        if (start.isClicked(mouseX, mouseY) && stage == 0) {
             stage = 1;
             changeStage(1);
 }
@@ -542,7 +677,7 @@ if (stage == 4) {
         }
         
         
-        if (catherine.isClicked(mouseX, mouseY)){
+        if (catherine.isClicked(mouseX, mouseY) && stage >1){
            cat_talking = true;
            
             row_dia = 0;
@@ -634,15 +769,19 @@ if (stage == 4) {
             // Handle the Yes/No click on the shared popup
             else if (showPlantPopup) {
                 if (mouseX < 480 / 2) { // Clicked "YES"
-                    if (waterCollected && waterPressed) {
-                        waterLevel = 100;
-                        waterCollected = false;
-                        waterPressed = false;
-                    } else if (soilCollected && soilPressed) {
-                        soilLevel = 100;
-                        soilCollected = false; // Item consumed
-                        soilPressed = false;
-                    }
+                        if (seed_select.isClicked(mouseX, mouseY)) {
+                            activeItem = seed_select;
+                        }
+                        else if (waterBucket.isClicked(mouseX, mouseY)) {
+                            activeItem = waterBucket;
+                        }
+                        else if (soil.isClicked(mouseX, mouseY)) {
+                            activeItem = soil;
+                        }
+
+                        if (activeItem != null) {
+                            activeItem.use(this);
+                        }
                     showPlantPopup = false;
                 } else { // Clicked "NO"
                     showPlantPopup = false;
@@ -650,6 +789,19 @@ if (stage == 4) {
             }
         }
     }
+
+
+if (king_choice && !playEnd) {
+    if (mouseY < 241) { // OPTION A
+        choseWin = true;
+        startEnding(WindiaArray);
+    }
+    else if (mouseY > 241) { // OPTION B
+        choseWin = false;
+        startEnding(losediaArray);
+    }
+}
+
 
 }
     
@@ -840,4 +992,124 @@ void drawSurvivalBars() {
     rect(xPos, 70, soilLevel, barHeight); 
     fill(255);
     text("SOIL HEALTH", xPos, 65);
-}}
+}
+
+
+
+void startEnding(String[] endingArray) {
+    playEnd = true;
+    king_choice = false;
+    ending_row = 0;
+
+    finaltxtbox.setImage("images/" + endingArray[0] + ".png");
+}
+void resetGame() {
+    // --- RETURN TO HOME ---
+    changeStage(0);
+    currentBackground = 1;
+
+    // --- CHARACTER ---
+    character.setPos(300, 240);
+    character.setImage("images/character.png");
+
+    // --- DIALOGUE FLAGS ---
+    user_talking = true;
+    micah_talking = false;
+    kiyomi_talking = false;
+    micky_talking = false;
+    cat_talking = false;
+    king_talking = false;
+
+    row_dia = 0;
+    collom_dia = 0;
+    start_userdia = true;
+
+    textbox.setImage(UserdiaArray[0][0]);
+    currentgno.setImage("images/gno1.png");
+
+    // --- KING / ENDING ---
+    king_choice = false;
+    choseWin = false;
+    king_row = 0;
+
+    // --- PROGRESSION ---
+    villagers_talked2 = 0;
+
+    // --- GARDEN ---
+    show_seed = false;
+    seedChosen = false;
+    seedPlanted = false;
+    showPlantPopup = false;
+
+    waterCollected = false;
+    soilCollected = false;
+    waterPressed = false;
+    soilPressed = false;
+
+    waterLevel = 100;
+    soilLevel = 100;
+
+    // --- INPUT LOCKS ---
+    map_open = false;
+    maplock = false;
+    spacelock = false;
+
+    // --- TIMER ---
+    stage4StartTime = 0;
+}
+
+public void MostCommonWordCount() {
+    int storyCount = 0;
+    int inpieCount = 0;
+    int graphicsCount = 0;
+
+    try {
+        Scanner scanner = new Scanner(new File("feedback.txt"));
+
+        while (scanner.hasNextLine()) {
+            String line = scanner.nextLine();
+                String word = line.trim();
+                if (word.equals("story")) storyCount++;
+                else if (word.equals("INpie")) inpieCount++;
+                else if (word.equals("graphics")) graphicsCount++;
+            }
+        
+
+        scanner.close();
+
+        // Assign to the class field
+        if (storyCount >= inpieCount && storyCount >= graphicsCount) {
+            mostCommonWord = "story";
+        } else if (inpieCount >= storyCount && inpieCount >= graphicsCount) {
+            mostCommonWord = "INpie";
+        } else {
+            mostCommonWord = "graphics";
+        }
+
+        System.out.println("Most common word: " + mostCommonWord);
+        System.out.println("Counts -> story: " + storyCount + ", INpie: " + inpieCount + ", graphics: " + graphicsCount);
+
+    } catch (FileNotFoundException e) {
+        System.out.println("File not found: " + e.getMessage());
+    }
+}
+public void startPlanting() {
+    seedPlanted = true;
+    showPlantPopup = false;
+    stage = 4;
+    currentgno.setImage("images/gno4.png");
+    stage4StartTime = millis();
+}
+
+public void refillWater() {
+    waterLevel = 100;
+    waterCollected = false;
+    waterPressed = false;
+}
+
+public void refillSoil() {
+    soilLevel = 100;
+    soilCollected = false;
+    soilPressed = false;
+}
+}
