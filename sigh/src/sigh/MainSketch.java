@@ -301,6 +301,8 @@ public class MainSketch extends PApplet {
         feedback = new dialoge(this, "images/feedback_base.png", -10,-3);
     }
 
+    
+    
     public void draw() {  
         System.out.println(king_talking +"," +!spacelock+"," +!playEnd);
     //open map if a is pressed   
