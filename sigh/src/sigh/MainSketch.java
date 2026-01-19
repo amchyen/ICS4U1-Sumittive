@@ -1333,7 +1333,9 @@ public void resetGame() {
 
     stage4StartTime = 0;
 }
-
+/**
+ * Calculates the most common word in the file textbox
+ */
 public void MostCommonWordCount() {
     //Initialize variables for this method
     int storyCount = 0;
@@ -1372,10 +1374,14 @@ public void MostCommonWordCount() {
             mostCommonWord = "graphics";
         }
 
-    } catch (FileNotFoundException e) {
+    } 
+    catch (FileNotFoundException e) {
         System.out.println("File not found: " + e.getMessage());
     }
 }
+/**
+ * Ran when user uses seed_select
+ */
 public void startPlanting() {
     seedPlanted = true;
     showPlantPopup = false;
@@ -1383,7 +1389,9 @@ public void startPlanting() {
     currentgno.setImage("images/gno4.png");
     stage4StartTime = millis();
 }
-
+/**
+ * Ran when user uses refilWater
+ */
 public void refillWater() {
     waterLevel = 100;
     waterCollected = false;
@@ -1405,7 +1413,10 @@ public void refillSoil() {
 public boolean notBG12() {
     return currentBackground != 12; 
 }
-
+/**
+ * Select the person you want to talk to
+ * @param p person you want to talk to
+ */
 public void interactWith(Person p) {
     //check if p is a chara
     if (p instanceof chara) {
