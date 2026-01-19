@@ -14,7 +14,8 @@ public class MainSketch extends PApplet {
     PImage[] images;  
     Village_bg plantbg;
     int imgIndex = 0; 
-    int numImages = 39;
+    public static final int IMAGE_FRAMES = 39;
+
     
     String ctxt = "txtU1(1)";
     private StartButton start;
@@ -74,8 +75,8 @@ public class MainSketch extends PApplet {
     
     items plantPOPup;
     items exit;
-    items waterBucket;
-    items soil;
+    WaterBucket waterBucket;
+    Soil soil;
     items activeItem = null;
 
     
@@ -103,8 +104,7 @@ public class MainSketch extends PApplet {
     int fiveMinutes = 30 * 1000; 
 
     boolean waterCollected = false;
-    boolean soilCollected = false
-           ;
+    boolean soilCollected = false;
     boolean soilPressed = false;
     boolean waterPressed = false;
    
@@ -165,8 +165,11 @@ public class MainSketch extends PApplet {
         catherinediaArray[0][0] = "images/txtC2(1).png";
         catherinediaArray[0][1] = "images/txtC2(2).png";
         
-        images = new PImage[numImages];
-        for (int i = 0; i < numImages; i++) {
+        //Initiazlize the size of the image array
+        images = new PImage[IMAGE_FRAMES];
+        //run through num 1-39 to load each corisponding frame into the array
+        for (int i = 0; i < IMAGE_FRAMES; i++) {
+            //Load all the frames of the GIF into the array
             images[i] = loadImage("images/frame_" + i + ".png");
         }
         
@@ -193,7 +196,7 @@ public class MainSketch extends PApplet {
         peachseed = new StartButton(this, "images/peachseed.png", 140,100);
         radishseed = new StartButton(this, "images/radishseed.png", 250,100);
         grapeseed = new StartButton(this, "images/grapeseed.png", 400,100);
-        seed_select = new seeds(this, "images/sel_chill.png", 20, 420);
+        seed_select = new seeds(this, "images/sel_chill.png", 20, 420, waterBucket, soil);
 
         finaltxtbox = new dialoge(this, "images/txtK1(1)_1.png", 100,100);  
         textbox = new dialoge(this, "images/" + ctxt+".png", 111,295);
@@ -290,17 +293,17 @@ public class MainSketch extends PApplet {
            //System.out.println(character.x +","+ character.y);
 
            if (keyPressed) {
-               if (currentBackground != 12){
+               if (notBG12()){
                 if (keyCode == LEFT) 
                   character.x -= 3;
                 
                 if (keyCode == RIGHT) {
                   character.x += 3;
                 }
-                if (keyCode == UP && currentBackground != 12) {
+                if (keyCode == UP && notBG12()) {
                   character.y -= 3;
                 }
-                if (keyCode == DOWN && currentBackground != 12) {
+                if (keyCode == DOWN && notBG12()) {
                   character.y += 3;
                 }
                }
@@ -561,7 +564,7 @@ if (playEnd) {
     }
     
     
-           if (showFeed) {
+           if (showFeed && width == 837) {
             feedback.draw();
            
            if (feedChoice){
@@ -628,20 +631,30 @@ if (playEnd) {
             
         
         if (cat_talking){
-            
+        //Check if the player has picked the chilly seed
         if (chillseed.isClicked(mouseX, mouseY)) {
+            //Set seed_select object as the chilly seed used later in the inventory 
             seed_select.setImage("images/sel_chill.png");
             seedChosen = true;
+            //Used for trouble shooting
             System.out.print("chill");
         }
+        //Check if the player has picked the peach seed
         else if (peachseed.isClicked(mouseX, mouseY)) {
+            //Set seed_select object as the chilly seed used later in the inventory 
             seed_select.setImage("images/sel_peach.png");
+            //Set seedChosen as true telling the code the player has chosen a seed
             seedChosen = true;
+            //Used for trouble shooting
             System.out.print("peach");
         }
+        //Check if the player has picked the radish seed
         else if (radishseed.isClicked(mouseX, mouseY)) {
+            //Set seed_select object as the radish seed used later in the inventory 
             seed_select.setImage("images/sel_radish.png");
+            //Set seedChosen as true telling the code the player has chosen a seed
             seedChosen = true;
+            //Used for trouble shooting
             System.out.print("radish");
 
         }
@@ -651,8 +664,12 @@ if (playEnd) {
             System.out.print("grape");
         }
         }
+        
+        //Mouse detection for starting the game 
         if (start.isClicked(mouseX, mouseY) && stage == 0) {
+            //change the stage if user has clicked the start button and its stage 0
             stage = 1;
+            //change setup size
             changeStage(1);
 }
             
@@ -715,6 +732,9 @@ if (playEnd) {
         if (currentBackground == 11 && !seedPlanted) {
         if (seed_select.isClicked(mouseX, mouseY)) {
             showPlantPopup = true;
+            seed_select.useItem(this, "water");
+            seed_select.useItem(this, "soil");
+
         }
 
         else if (showPlantPopup) {
@@ -828,7 +848,10 @@ if (king_choice && !playEnd) {
     }
 }
 
-    
+ /**
+ This method is used to set boarders in bg1 and detect player movement
+ * 
+ */   
      void updateBackground1() {
         if (character.x < 330 && character.y < 404){
 
@@ -846,7 +869,10 @@ if (king_choice && !playEnd) {
             character.setImage("images/chara_right.png");
         }
     }
-
+/**
+ This method is used to set boarders in bg2 and detect player movement
+ * 
+ */
     void updateBackground2() {
         if (character.y < 334 && character.x > 160) {
             currentBackground = 10;
@@ -871,7 +897,10 @@ if (king_choice && !playEnd) {
         }
         
     }
-    
+    /**
+ This method is used to set boarders in bg4 and detect player movement
+ * 
+ */
     void updateBackground4() {
         if (character.x > 292) character.x = 292;
         if (character.y > 168 && character.y < 248 && character.x < 50) {
@@ -887,7 +916,10 @@ if (king_choice && !playEnd) {
         }
      
     }
-
+/**
+ This method is used to set boarders in bg5 and detect player movement
+ * 
+ */
     void updateBackground5() {
  
         if (character.x > 180 && character.x < 300 && character.y >= 0 && character.y < 50) {
@@ -902,8 +934,26 @@ if (king_choice && !playEnd) {
             currentBackground = 4;
             character.setPos(64, 210);
         }
+        
+        //Prevents character from walking off
+        //Checks if character x or y is off screen
+        if (character.x < 0)
+            //Contains them inside the screen
+            character.x = 0;
+        if (character.x > 683)
+            //Contains them inside the screen
+            character.x = 683;
+        if (character.y > 480)
+         //Contains them inside the screen
+            character.x = 480;
+        if (character.y > 0)
+            //Contains them inside the screen
+            character.x = 0;
     }
-
+/**
+ This method is used to set boarders in bg6 and detect player movement
+ * 
+ */
     void updateBackground6() {
         if (character.x < 266) character.x = 266;
         if (character.x > 562) character.x = 562;
@@ -916,7 +966,10 @@ if (king_choice && !playEnd) {
             character.setPos(430, 460);
         }
     }
-
+/**
+ This method is used to set boarders in bg7 and detect player movement
+ * 
+ */
     void updateBackground7() {
         if (character.x < 274) character.x = 274;
         if (character.y > 144) character.y = 144;
@@ -930,7 +983,10 @@ if (king_choice && !playEnd) {
         }
         
     }
-
+/**
+ This method is used to set boarders in bg8 and detect player movement
+ * 
+ */
     void updateBackground8() {
         if (character.x > 413) character.x = 413;
         if (character.y > 110 && character.x < 317) {
@@ -952,12 +1008,24 @@ if (king_choice && !playEnd) {
 
    
     }
-
+/**
+ This method is used to set boarders in bg9 and detect player movement
+  
+ */
     void updateBackground9() {
-        if (character.y > 200) character.y = 200;
-        if (character.x > 393) character.x = 393;
+        //Check is player has gone off the "path" on the map
+        if (character.y > 200) 
+            //Prevents them from going off path
+            character.y = 200;
+        //Check is player has gone off the "path" on the map
+        if (character.x > 393)
+            //Prevents them from going off path
+            character.x = 393;
+        //Check if player wants to go to another part of the map
         if (character.x > 88 && character.x < 148 && character.y < 30) {
+            //change map background
             currentBackground = 4;
+            //move player to correct potion for bg4
             character.setPos(124, 460);
         }
     }
@@ -995,24 +1063,32 @@ void drawSurvivalBars() {
 }
 
 
-
-void startEnding(String[] endingArray) {
+/**
+ * This method takes endingArray and sets the finaltxtbox to it. 
+ * It also changes required variables to continue with the game
+ * @param endingArray This is the choice the user has made in the final ut scene (lie or tell the truth)
+ */
+public void startEnding(String[] endingArray) {
+    //Set playEnd to true to start game ending
     playEnd = true;
+    //Disables players ability to chose in the final
     king_choice = false;
+    //Tracks which image in the array is being shown
     ending_row = 0;
 
+    //Set the txt box being shown the the one the player chose
     finaltxtbox.setImage("images/" + endingArray[0] + ".png");
 }
-void resetGame() {
-    // --- RETURN TO HOME ---
+public void resetGame() {
+    //Go back to home page
     changeStage(0);
     currentBackground = 1;
-
-    // --- CHARACTER ---
+    
+    //return character to starting position, and image
     character.setPos(300, 240);
     character.setImage("images/character.png");
 
-    // --- DIALOGUE FLAGS ---
+    //Return all talking flags to false
     user_talking = true;
     micah_talking = false;
     kiyomi_talking = false;
@@ -1020,22 +1096,21 @@ void resetGame() {
     cat_talking = false;
     king_talking = false;
 
+    //Revert all dialoge variables to 0 
     row_dia = 0;
     collom_dia = 0;
     start_userdia = true;
 
+    //Set textbox to first dialoge
     textbox.setImage(UserdiaArray[0][0]);
     currentgno.setImage("images/gno1.png");
 
-    // --- KING / ENDING ---
+    //Revert all variables to orgional value
     king_choice = false;
     choseWin = false;
     king_row = 0;
-
-    // --- PROGRESSION ---
     villagers_talked2 = 0;
 
-    // --- GARDEN ---
     show_seed = false;
     seedChosen = false;
     seedPlanted = false;
@@ -1049,12 +1124,10 @@ void resetGame() {
     waterLevel = 100;
     soilLevel = 100;
 
-    // --- INPUT LOCKS ---
     map_open = false;
     maplock = false;
     spacelock = false;
 
-    // --- TIMER ---
     stage4StartTime = 0;
 }
 
@@ -1086,9 +1159,6 @@ public void MostCommonWordCount() {
             mostCommonWord = "graphics";
         }
 
-        System.out.println("Most common word: " + mostCommonWord);
-        System.out.println("Counts -> story: " + storyCount + ", INpie: " + inpieCount + ", graphics: " + graphicsCount);
-
     } catch (FileNotFoundException e) {
         System.out.println("File not found: " + e.getMessage());
     }
@@ -1106,10 +1176,20 @@ public void refillWater() {
     waterCollected = false;
     waterPressed = false;
 }
-
+/**
+ * Called when the player has used soil on plant
+ */
 public void refillSoil() {
     soilLevel = 100;
     soilCollected = false;
     soilPressed = false;
+}
+/**
+ * Used to check if the current background is 12
+ * Allows better readability is draw() method
+ * @return if the current background 12 (t or f)
+ */
+public boolean notBG12() {
+    return currentBackground != 12; 
 }
 }
