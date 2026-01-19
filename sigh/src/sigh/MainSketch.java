@@ -90,8 +90,8 @@ public class MainSketch extends PApplet {
     //***************************
     //gameplay / stage tracking
     //***************************
-    private int stage = 5;                    
-    private int currentBackground = 1;       
+    private int stage = 0;                    
+    private int currentBackground = 10;       
 
     int row_dia = 0;                          
     int collom_dia = 0;                       
@@ -151,7 +151,7 @@ public class MainSketch extends PApplet {
     //stage 4 start time in millsec
     int stage4StartTime;                       
     //int fiveMinutes = 5 * 60 * 1000; 
-    int fiveMinutes = 30 * 1000;              
+    int fiveMinutes = 45 * 1000;              
     
     //sas water and soil been collected
     boolean waterCollected = false; 
@@ -302,6 +302,7 @@ public class MainSketch extends PApplet {
     }
 
     public void draw() {  
+        System.out.println(king_talking +"," +!spacelock+"," +!playEnd);
     //open map if a is pressed   
     if (keyPressed && key == 'a' && !maplock) {
         //indicate a is being pressed
@@ -453,7 +454,7 @@ public class MainSketch extends PApplet {
                 //tell code that space is being pressed        
                     spacelock=true;
                     //play next dialoge when spacee is pressed
-                    row_dia++;
+                    kiyomi_row++;
                 if (kiyomi_row < kiyomidiaArray[0].length-2) {
                          //change image of textbox to next one/ current index one
                     textbox.setImage(kiyomidiaArray[0][kiyomi_row]);
@@ -516,7 +517,7 @@ public class MainSketch extends PApplet {
                 //tell code that space is being pressed        
                     spacelock=true;
                     //play next dialoge when spacee is pressed
-                    row_dia++;
+                    king_row++;
                 //Normal king dialogue
                 if (king_row < kingdiaArray.length) {
                    //change image of textbox to next one/ current index one
@@ -556,6 +557,7 @@ public class MainSketch extends PApplet {
             resetGame();
             //Troublshooting
             println("game reset");
+            changeStage(0);
             homePage = true;
         }
                    }
@@ -959,8 +961,10 @@ if (stage == 4) {
                 }}
             if (!showPlantPopup && soil.isClicked(mouseX, mouseY)) {
                  if (soilCollected){
-                    showPlantPopup = true;
-                    soilPressed = true;}
+                    soilPressed = true;
+                    refillSoil();
+                 }
+             
             }
             //Handle the Yes/No click on the shared popup
             else if (showPlantPopup) {
@@ -979,6 +983,7 @@ if (stage == 4) {
                         }
                         
                         if (activeItem != null) {
+                            System.out.println("hi");
                             activeItem.use(this);
                         }
                     showPlantPopup = false;
