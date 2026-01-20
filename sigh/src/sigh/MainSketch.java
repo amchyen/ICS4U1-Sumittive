@@ -90,8 +90,8 @@ public class MainSketch extends PApplet {
     //***************************
     //gameplay / stage tracking
     //***************************
-    private int stage = 0;                    
-    private int currentBackground = 10;       
+    private int stage = 5;                    
+    private int currentBackground = 1;       
 
     int row_dia = 0;                          
     int collom_dia = 0;                       
@@ -554,7 +554,7 @@ public class MainSketch extends PApplet {
         }
         
         //was h pressed
-        if (playEnd && key == 'h'){
+        if (!playEnd && key == 'h'){
             //run method resetGame()
             resetGame();
             //Troublshooting
@@ -703,13 +703,15 @@ if (stage == 4) {
         //check if king is talking
         if (king_talking){
             //draw king dialouge
-        finaltxtbox.draw();
-if (playEnd) {
+            finaltxtbox.draw();
+if (!playEnd) {
     //checks if user chose the winning path or losing one
     if (choseWin) {
         //check is win dialouge is done
         if (ending_row >= WindiaArray.length) {
+            //draw winning message
             Win_message.draw();
+            
         }
     } 
     else {
@@ -939,7 +941,6 @@ if (stage == 4) {
             }
         }
 
-        //COLLECTION: Background 7 (Soil Patch)
         if (currentBackground == 6 && !soilCollected) {
            //check is user collected soil basd on cords
             if (mouseX > 393 && mouseY > 256) {
