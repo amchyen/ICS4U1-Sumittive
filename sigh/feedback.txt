@@ -6,4 +6,6 @@ story
 story
 graphics
 graphics
-graphics
+graphicsINpie
+story
+INpie
